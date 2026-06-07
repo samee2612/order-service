@@ -30,6 +30,15 @@ Response fields:
 
 Returns the saved order summary from the repository.
 
+### GET /orders/{order_id}/status
+
+Returns the current lifecycle status and the next client action for the order.
+
+Response fields:
+
+- `status`: current order state such as `created`, `paid`, `fulfilled`, or `cancelled`.
+- `next_action`: recommended next step for the client, such as `collect_payment` or `fulfill_order`.
+
 ### GET /orders?customer_id={customer_id}
 
 Lists all orders for a customer account.
@@ -94,3 +103,4 @@ Response fields:
 `POST /orders/{order_id}/fulfill` flows through the route, service validation, and repository update layers.
 `POST /orders/{order_id}/cancel` flows through the route, service validation, and repository update layers.
 `GET /orders?customer_id={customer_id}` flows through the route, service lookup, and repository query layers.
+`GET /orders/{order_id}/status` flows through the route, service lookup, and status response mapping layers.

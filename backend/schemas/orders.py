@@ -44,6 +44,27 @@ class ListOrdersResponse:
 
 
 @dataclass(frozen=True)
+class OrderStatusResponse:
+    order_id: str
+    customer_id: str
+    status: str
+    item_count: int
+    total_amount: str
+    next_action: str
+
+    @classmethod
+    def from_order(cls, order: Order) -> "OrderStatusResponse":
+        return cls(
+            order_id=order.order_id,
+            customer_id=order.customer_id,
+            status=order.status,
+            item_count=order.item_count,
+            total_amount=f"{order.total_amount:.2f}",
+            next_action=_next_action_for_status(order.status),
+        )
+
+
+@dataclass(frozen=True)
 class OrderResponse:
     order_id: str
     customer_id: str
@@ -62,3 +83,12 @@ class OrderResponse:
             total_amount=f"{order.total_amount:.2f}",
             checkout_next_step="collect_payment" if order.status == "created" else "view_order",
         )
+
+
+def _next_action_for_status(status: str) -> str:
+    return {
+        "created": "collect_payment",
+        "paid": "fulfill_order",
+        "fulfilled": "view_order",
+        "cancelled": "view_order",
+    }.get(status, "view_order")
