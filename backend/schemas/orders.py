@@ -27,6 +27,11 @@ class CancelOrderRequest:
 
 
 @dataclass(frozen=True)
+class MarkOrderPaidRequest:
+    payment_reference: str
+
+
+@dataclass(frozen=True)
 class ListOrdersResponse:
     customer_id: str
     orders: tuple[OrderResponse, ...]

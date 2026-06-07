@@ -44,6 +44,19 @@ Response fields:
 - `orders`: list of order summaries for that customer.
 - `total_count`: number of orders returned.
 
+### POST /orders/{order_id}/pay
+
+Marks a checkout order as paid after payment authorization succeeds.
+
+Request fields:
+
+- `payment_reference`: payment processor reference for the successful charge.
+
+Response fields:
+
+- `status`: updated order state, set to `paid`.
+- `checkout_next_step`: client action after payment, currently `view_order`.
+
 ### POST /orders/{order_id}/cancel
 
 Cancels an order that has not yet been fulfilled.
@@ -64,5 +77,6 @@ Response fields:
 `backend/repositories/order_repository.py` persists and retrieves orders.
 `backend/models/order.py` defines the domain model.
 `backend/schemas/orders.py` defines request and response shapes.
+`POST /orders/{order_id}/pay` flows through the route, service validation, and repository update layers.
 `POST /orders/{order_id}/cancel` flows through the route, service validation, and repository update layers.
 `GET /orders?customer_id={customer_id}` flows through the route, service lookup, and repository query layers.
