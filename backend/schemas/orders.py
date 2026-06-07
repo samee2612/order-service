@@ -27,6 +27,13 @@ class CancelOrderRequest:
 
 
 @dataclass(frozen=True)
+class ListOrdersResponse:
+    customer_id: str
+    orders: tuple[OrderResponse, ...]
+    total_count: int
+
+
+@dataclass(frozen=True)
 class OrderResponse:
     order_id: str
     customer_id: str

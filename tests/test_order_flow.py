@@ -1,6 +1,6 @@
 from decimal import Decimal
 
-from backend.routes.orders import cancel_order_route, create_order_route, get_order_route
+from backend.routes.orders import cancel_order_route, create_order_route, get_order_route, list_orders_route
 from backend.schemas.orders import CancelOrderRequest, CreateOrderItem, CreateOrderRequest
 
 
@@ -30,6 +30,15 @@ def test_get_order_route_returns_saved_order() -> None:
 
     assert response.order_id == "order_customer_123_001"
     assert response.status == "created"
+
+
+def test_list_orders_route_returns_customer_orders() -> None:
+    response = list_orders_route("customer-123")
+
+    assert response.customer_id == "customer-123"
+    assert response.total_count == 1
+    assert response.orders[0].order_id == "order_customer_123_001"
+    assert response.orders[0].status == "created"
 
 
 def test_cancel_order_route_updates_order_status() -> None:
