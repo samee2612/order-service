@@ -60,6 +60,25 @@ class OrderService:
         )
         return self.repository.save(paid_order)
 
+    def fulfill_order(self, order_id: str, fulfillment_reference: str) -> Order:
+        if not fulfillment_reference.strip():
+            raise OrderValidationError("fulfillment_reference is required")
+
+        order = self.repository.get(order_id)
+        if order.status != "paid":
+            raise OrderValidationError("only paid orders can be fulfilled")
+        if order.status == "fulfilled":
+            return order
+
+        fulfilled_order = Order(
+            order_id=order.order_id,
+            customer_id=order.customer_id,
+            items=order.items,
+            status="fulfilled",
+            total_amount=order.total_amount,
+        )
+        return self.repository.save(fulfilled_order)
+
     def cancel_order(self, order_id: str, cancellation_reason: str) -> Order:
         if not cancellation_reason.strip():
             raise OrderValidationError("cancellation_reason is required")
