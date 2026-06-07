@@ -79,6 +79,20 @@ Response fields:
 - `status`: updated order state, set to `fulfilled`.
 - `checkout_next_step`: client action after fulfillment, currently `view_order`.
 
+### POST /orders/{order_id}/refund
+
+Refunds a paid or fulfilled order after payment has been captured.
+
+Request fields:
+
+- `refund_reference`: payment processor refund reference.
+- `refund_reason`: customer or support reason for the refund.
+
+Response fields:
+
+- `status`: updated order state, set to `refunded`.
+- `checkout_next_step`: client action after refund, currently `view_order`.
+
 ### POST /orders/{order_id}/cancel
 
 Cancels an order that has not yet been fulfilled.
@@ -104,3 +118,4 @@ Response fields:
 `POST /orders/{order_id}/cancel` flows through the route, service validation, and repository update layers.
 `GET /orders?customer_id={customer_id}` flows through the route, service lookup, and repository query layers.
 `GET /orders/{order_id}/status` flows through the route, service lookup, and status response mapping layers.
+`POST /orders/{order_id}/refund` flows through the route, service validation, and repository update layers.

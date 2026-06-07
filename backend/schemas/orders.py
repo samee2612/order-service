@@ -32,6 +32,12 @@ class MarkOrderPaidRequest:
 
 
 @dataclass(frozen=True)
+class RefundOrderRequest:
+    refund_reference: str
+    refund_reason: str
+
+
+@dataclass(frozen=True)
 class FulfillOrderRequest:
     fulfillment_reference: str
 
@@ -91,4 +97,5 @@ def _next_action_for_status(status: str) -> str:
         "paid": "fulfill_order",
         "fulfilled": "view_order",
         "cancelled": "view_order",
+        "refunded": "view_order",
     }.get(status, "view_order")

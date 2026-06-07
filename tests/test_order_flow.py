@@ -1,7 +1,7 @@
 from decimal import Decimal
 
-from backend.routes.orders import cancel_order_route, create_order_route, fulfill_order_route, get_order_route, get_order_status_route, list_orders_route, mark_order_paid_route
-from backend.schemas.orders import CancelOrderRequest, CreateOrderItem, CreateOrderRequest, FulfillOrderRequest, MarkOrderPaidRequest
+from backend.routes.orders import cancel_order_route, create_order_route, fulfill_order_route, get_order_route, get_order_status_route, list_orders_route, mark_order_paid_route, refund_order_route
+from backend.schemas.orders import CancelOrderRequest, CreateOrderItem, CreateOrderRequest, FulfillOrderRequest, MarkOrderPaidRequest, RefundOrderRequest
 
 
 def test_create_order_route_returns_checkout_response() -> None:
@@ -68,4 +68,18 @@ def test_fulfill_order_route_updates_order_status() -> None:
 
     assert response.order_id == "order_customer_123_001"
     assert response.status == "fulfilled"
+    assert response.checkout_next_step == "view_order"
+
+
+def test_refund_order_route_updates_order_status() -> None:
+    response = refund_order_route(
+        "order_customer_123_001",
+        RefundOrderRequest(
+            refund_reference="refund_test_123",
+            refund_reason="customer requested refund after delivery",
+        ),
+    )
+
+    assert response.order_id == "order_customer_123_001"
+    assert response.status == "refunded"
     assert response.checkout_next_step == "view_order"

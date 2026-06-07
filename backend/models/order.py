@@ -4,7 +4,7 @@ from dataclasses import dataclass
 from decimal import Decimal
 from typing import Literal
 
-OrderStatus = Literal["created", "paid", "fulfilled", "cancelled"]
+OrderStatus = Literal["created", "paid", "fulfilled", "cancelled", "refunded"]
 
 
 @dataclass(frozen=True)

@@ -82,6 +82,28 @@ class OrderService:
         )
         return self.repository.save(fulfilled_order)
 
+
+    def refund_order(self, order_id: str, refund_reference: str, refund_reason: str) -> Order:
+        if not refund_reference.strip():
+            raise OrderValidationError("refund_reference is required")
+        if not refund_reason.strip():
+            raise OrderValidationError("refund_reason is required")
+
+        order = self.repository.get(order_id)
+        if order.status not in ("paid", "fulfilled"):
+            raise OrderValidationError("only paid or fulfilled orders can be refunded")
+        if order.status == "refunded":
+            return order
+
+        refunded_order = Order(
+            order_id=order.order_id,
+            customer_id=order.customer_id,
+            items=order.items,
+            status="refunded",
+            total_amount=order.total_amount,
+        )
+        return self.repository.save(refunded_order)
+
     def cancel_order(self, order_id: str, cancellation_reason: str) -> Order:
         if not cancellation_reason.strip():
             raise OrderValidationError("cancellation_reason is required")
