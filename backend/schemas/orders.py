@@ -50,6 +50,26 @@ class ListOrdersResponse:
 
 
 @dataclass(frozen=True)
+class InvoiceResponse:
+    invoice_id: str
+    order_id: str
+    customer_id: str
+    status: str
+    total_amount: str
+    line_item_count: int
+    issued_at: str
+    @classmethod
+    def from_order(cls, order, invoice_id: str, issued_at: str) -> "InvoiceResponse":
+        return cls(
+            invoice_id=invoice_id,
+            order_id=order.order_id,
+            customer_id=order.customer_id,
+            status=order.status,
+            total_amount=f"{order.total_amount:.2f}",
+            line_item_count=order.item_count,
+            issued_at=issued_at,
+        )
+@dataclass(frozen=True)
 class OrderTrackingResponse:
     order_id: str
     customer_id: str
