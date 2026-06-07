@@ -39,6 +39,27 @@ class OrderService:
             raise OrderValidationError("customer_id is required")
         return self.repository.list_by_customer(customer_id)
 
+    def mark_order_paid(self, order_id: str, payment_reference: str) -> Order:
+        if not payment_reference.strip():
+            raise OrderValidationError("payment_reference is required")
+
+        order = self.repository.get(order_id)
+        if order.status == "cancelled":
+            raise OrderValidationError("cancelled orders cannot be paid")
+        if order.status == "fulfilled":
+            raise OrderValidationError("fulfilled orders are already closed")
+        if order.status == "paid":
+            return order
+
+        paid_order = Order(
+            order_id=order.order_id,
+            customer_id=order.customer_id,
+            items=order.items,
+            status="paid",
+            total_amount=order.total_amount,
+        )
+        return self.repository.save(paid_order)
+
     def cancel_order(self, order_id: str, cancellation_reason: str) -> Order:
         if not cancellation_reason.strip():
             raise OrderValidationError("cancellation_reason is required")
