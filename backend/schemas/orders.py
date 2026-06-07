@@ -50,6 +50,27 @@ class ListOrdersResponse:
 
 
 @dataclass(frozen=True)
+class OrderTrackingResponse:
+    order_id: str
+    customer_id: str
+    status: str
+    tracking_number: str
+    carrier: str
+    estimated_delivery: str
+
+    @classmethod
+    def from_order(cls, order, tracking_number: str, carrier: str, estimated_delivery: str) -> "OrderTrackingResponse":
+        return cls(
+            order_id=order.order_id,
+            customer_id=order.customer_id,
+            status=order.status,
+            tracking_number=tracking_number,
+            carrier=carrier,
+            estimated_delivery=estimated_delivery,
+        )
+
+
+@dataclass(frozen=True)
 class OrderStatusResponse:
     order_id: str
     customer_id: str
