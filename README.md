@@ -30,6 +30,20 @@ Response fields:
 
 Returns the saved order summary from the repository.
 
+### GET /orders?customer_id={customer_id}
+
+Lists all orders for a customer account.
+
+Query fields:
+
+- `customer_id`: customer whose order history should be returned.
+
+Response fields:
+
+- `customer_id`: customer identifier used for the lookup.
+- `orders`: list of order summaries for that customer.
+- `total_count`: number of orders returned.
+
 ### POST /orders/{order_id}/cancel
 
 Cancels an order that has not yet been fulfilled.
@@ -51,3 +65,4 @@ Response fields:
 `backend/models/order.py` defines the domain model.
 `backend/schemas/orders.py` defines request and response shapes.
 `POST /orders/{order_id}/cancel` flows through the route, service validation, and repository update layers.
+`GET /orders?customer_id={customer_id}` flows through the route, service lookup, and repository query layers.

@@ -34,6 +34,11 @@ class OrderService:
     def get_order(self, order_id: str) -> Order:
         return self.repository.get(order_id)
 
+    def list_orders_for_customer(self, customer_id: str) -> tuple[Order, ...]:
+        if not customer_id.strip():
+            raise OrderValidationError("customer_id is required")
+        return self.repository.list_by_customer(customer_id)
+
     def cancel_order(self, order_id: str, cancellation_reason: str) -> Order:
         if not cancellation_reason.strip():
             raise OrderValidationError("cancellation_reason is required")

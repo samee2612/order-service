@@ -20,3 +20,10 @@ class InMemoryOrderRepository:
             return self._orders[order_id]
         except KeyError as error:
             raise OrderRepositoryError(f"Order not found: {order_id}") from error
+
+    def list_by_customer(self, customer_id: str) -> tuple[Order, ...]:
+        return tuple(
+            order
+            for order in self._orders.values()
+            if order.customer_id == customer_id
+        )
