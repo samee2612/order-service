@@ -1,7 +1,7 @@
 from decimal import Decimal
 
-from backend.routes.orders import create_order_route, get_order_route
-from backend.schemas.orders import CreateOrderItem, CreateOrderRequest
+from backend.routes.orders import cancel_order_route, create_order_route, get_order_route
+from backend.schemas.orders import CancelOrderRequest, CreateOrderItem, CreateOrderRequest
 
 
 def test_create_order_route_returns_checkout_response() -> None:
@@ -30,3 +30,14 @@ def test_get_order_route_returns_saved_order() -> None:
 
     assert response.order_id == "order_customer_123_001"
     assert response.status == "created"
+
+
+def test_cancel_order_route_updates_order_status() -> None:
+    response = cancel_order_route(
+        "order_customer_123_001",
+        CancelOrderRequest(cancellation_reason="Customer requested cancellation before payment."),
+    )
+
+    assert response.order_id == "order_customer_123_001"
+    assert response.status == "cancelled"
+    assert response.checkout_next_step == "view_order"

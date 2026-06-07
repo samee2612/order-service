@@ -34,6 +34,25 @@ class OrderService:
     def get_order(self, order_id: str) -> Order:
         return self.repository.get(order_id)
 
+    def cancel_order(self, order_id: str, cancellation_reason: str) -> Order:
+        if not cancellation_reason.strip():
+            raise OrderValidationError("cancellation_reason is required")
+
+        order = self.repository.get(order_id)
+        if order.status == "cancelled":
+            raise OrderValidationError("order is already cancelled")
+        if order.status == "fulfilled":
+            raise OrderValidationError("fulfilled orders cannot be cancelled")
+
+        cancelled_order = Order(
+            order_id=order.order_id,
+            customer_id=order.customer_id,
+            items=order.items,
+            status="cancelled",
+            total_amount=order.total_amount,
+        )
+        return self.repository.save(cancelled_order)
+
     def _validate_create_request(self, request: CreateOrderRequest) -> None:
         if not request.customer_id:
             raise OrderValidationError("customer_id is required")
