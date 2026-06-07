@@ -1,6 +1,6 @@
 from decimal import Decimal
 
-from backend.routes.orders import cancel_order_route, create_order_route, fulfill_order_route, get_order_route, get_order_status_route, get_order_tracking_route, list_orders_route, mark_order_paid_route, refund_order_route
+from backend.routes.orders import cancel_order_route, create_order_route, fulfill_order_route, get_order_invoice_route, get_order_route, get_order_status_route, get_order_tracking_route, list_orders_route, mark_order_paid_route, refund_order_route
 from backend.schemas.orders import CancelOrderRequest, CreateOrderItem, CreateOrderRequest, FulfillOrderRequest, MarkOrderPaidRequest, RefundOrderRequest
 
 
@@ -101,3 +101,14 @@ def test_get_order_tracking_route_returns_tracking_details() -> None:
     assert response.status == "fulfilled"
     assert response.carrier == "Acme Logistics"
     assert response.tracking_number.startswith("TRK-")
+
+def test_get_order_invoice_route_returns_invoice_details() -> None:
+    mark_order_paid_route(
+        "order_customer_123_001",
+        MarkOrderPaidRequest(payment_reference="pay_invoice_123"),
+    )
+    response = get_order_invoice_route("order_customer_123_001")
+    assert response.order_id == "order_customer_123_001"
+    assert response.status == "paid"
+    assert response.invoice_id.startswith("INV-")
+    assert response.line_item_count == 3

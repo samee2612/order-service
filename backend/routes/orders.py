@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from backend.repositories.order_repository import InMemoryOrderRepository
-from backend.schemas.orders import CancelOrderRequest, CreateOrderRequest, FulfillOrderRequest, ListOrdersResponse, MarkOrderPaidRequest, OrderResponse, OrderStatusResponse, OrderTrackingResponse, RefundOrderRequest
+from backend.schemas.orders import CancelOrderRequest, CreateOrderRequest, FulfillOrderRequest, ListOrdersResponse, MarkOrderPaidRequest, InvoiceResponse, OrderResponse, OrderStatusResponse, OrderTrackingResponse, RefundOrderRequest
 from backend.services.order_service import OrderService
 
 order_repository = InMemoryOrderRepository()
@@ -49,6 +49,10 @@ def fulfill_order_route(order_id: str, request: FulfillOrderRequest) -> OrderRes
     return OrderResponse.from_order(order)
 
 
+def get_order_invoice_route(order_id: str) -> InvoiceResponse:
+    """GET /orders/{order_id}/invoice - return invoice details for billable orders."""
+    order, invoice_id, issued_at = order_service.get_order_invoice(order_id)
+    return InvoiceResponse.from_order(order, invoice_id, issued_at)
 def get_order_tracking_route(order_id: str) -> OrderTrackingResponse:
     """GET /orders/{order_id}/tracking - return shipment tracking for fulfilled orders."""
     order, tracking_number, carrier, estimated_delivery = order_service.get_order_tracking(order_id)

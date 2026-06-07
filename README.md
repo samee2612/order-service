@@ -79,6 +79,13 @@ Response fields:
 - `status`: updated order state, set to `fulfilled`.
 - `checkout_next_step`: client action after fulfillment, currently `view_order`.
 
+### GET /orders/{order_id}/invoice
+Returns invoice details for paid, fulfilled, or refunded orders.
+Response fields:
+- `invoice_id`: generated invoice identifier.
+- `total_amount`: billed order total.
+- `line_item_count`: number of items on the invoice.
+- `issued_at`: invoice issue date.
 ### GET /orders/{order_id}/tracking
 
 Returns shipment tracking details for fulfilled or refunded orders.
@@ -130,3 +137,4 @@ Response fields:
 `GET /orders/{order_id}/status` flows through the route, service lookup, and status response mapping layers.
 `POST /orders/{order_id}/refund` flows through the route, service validation, and repository update layers.
 `GET /orders/{order_id}/tracking` flows through the route, service validation, and tracking response mapping layers.
+`GET /orders/{order_id}/invoice` flows through the route, service validation, and invoice response mapping layers.

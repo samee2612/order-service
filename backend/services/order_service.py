@@ -37,6 +37,13 @@ class OrderService:
     def get_order_status(self, order_id: str) -> Order:
         return self.repository.get(order_id)
 
+    def get_order_invoice(self, order_id: str) -> tuple[Order, str, str]:
+        order = self.repository.get(order_id)
+        if order.status not in ("paid", "fulfilled", "refunded"):
+            raise OrderValidationError("invoice is available only for paid, fulfilled, or refunded orders")
+        invoice_id = f"INV-{order.order_id.upper().replace('_', '-')}"
+        issued_at = "2026-06-07"
+        return order, invoice_id, issued_at
     def get_order_tracking(self, order_id: str) -> tuple[Order, str, str, str]:
         order = self.repository.get(order_id)
         if order.status not in ("fulfilled", "refunded"):
