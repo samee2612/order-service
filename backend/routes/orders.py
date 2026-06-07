@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from backend.repositories.order_repository import InMemoryOrderRepository
-from backend.schemas.orders import CancelOrderRequest, CreateOrderRequest, FulfillOrderRequest, ListOrdersResponse, MarkOrderPaidRequest, OrderResponse
+from backend.schemas.orders import CancelOrderRequest, CreateOrderRequest, FulfillOrderRequest, ListOrdersResponse, MarkOrderPaidRequest, OrderResponse, OrderStatusResponse
 from backend.services.order_service import OrderService
 
 order_repository = InMemoryOrderRepository()
@@ -18,6 +18,12 @@ def get_order_route(order_id: str) -> OrderResponse:
     """GET /orders/{order_id} - return the current order summary."""
     order = order_service.get_order(order_id)
     return OrderResponse.from_order(order)
+
+
+def get_order_status_route(order_id: str) -> OrderStatusResponse:
+    """GET /orders/{order_id}/status - return the current lifecycle status and next action."""
+    order = order_service.get_order_status(order_id)
+    return OrderStatusResponse.from_order(order)
 
 
 def list_orders_route(customer_id: str) -> ListOrdersResponse:

@@ -34,6 +34,9 @@ class OrderService:
     def get_order(self, order_id: str) -> Order:
         return self.repository.get(order_id)
 
+    def get_order_status(self, order_id: str) -> Order:
+        return self.repository.get(order_id)
+
     def list_orders_for_customer(self, customer_id: str) -> tuple[Order, ...]:
         if not customer_id.strip():
             raise OrderValidationError("customer_id is required")
