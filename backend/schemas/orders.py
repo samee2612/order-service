@@ -22,6 +22,11 @@ class CreateOrderRequest:
 
 
 @dataclass(frozen=True)
+class CancelOrderRequest:
+    cancellation_reason: str
+
+
+@dataclass(frozen=True)
 class OrderResponse:
     order_id: str
     customer_id: str

@@ -30,6 +30,19 @@ Response fields:
 
 Returns the saved order summary from the repository.
 
+### POST /orders/{order_id}/cancel
+
+Cancels an order that has not yet been fulfilled.
+
+Request fields:
+
+- `cancellation_reason`: customer or support reason for cancelling the order.
+
+Response fields:
+
+- `status`: updated order state, set to `cancelled`.
+- `checkout_next_step`: client action after cancellation, currently `view_order`.
+
 ## Code Path
 
 `backend/routes/orders.py` receives request objects and returns response objects.
@@ -37,3 +50,4 @@ Returns the saved order summary from the repository.
 `backend/repositories/order_repository.py` persists and retrieves orders.
 `backend/models/order.py` defines the domain model.
 `backend/schemas/orders.py` defines request and response shapes.
+`POST /orders/{order_id}/cancel` flows through the route, service validation, and repository update layers.
