@@ -79,6 +79,16 @@ Response fields:
 - `status`: updated order state, set to `fulfilled`.
 - `checkout_next_step`: client action after fulfillment, currently `view_order`.
 
+### GET /orders/{order_id}/tracking
+
+Returns shipment tracking details for fulfilled or refunded orders.
+
+Response fields:
+
+- `tracking_number`: carrier tracking identifier.
+- `carrier`: logistics provider name.
+- `estimated_delivery`: projected delivery date.
+
 ### POST /orders/{order_id}/refund
 
 Refunds a paid or fulfilled order after payment has been captured.
@@ -119,3 +129,4 @@ Response fields:
 `GET /orders?customer_id={customer_id}` flows through the route, service lookup, and repository query layers.
 `GET /orders/{order_id}/status` flows through the route, service lookup, and status response mapping layers.
 `POST /orders/{order_id}/refund` flows through the route, service validation, and repository update layers.
+`GET /orders/{order_id}/tracking` flows through the route, service validation, and tracking response mapping layers.

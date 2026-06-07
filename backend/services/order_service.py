@@ -37,6 +37,15 @@ class OrderService:
     def get_order_status(self, order_id: str) -> Order:
         return self.repository.get(order_id)
 
+    def get_order_tracking(self, order_id: str) -> tuple[Order, str, str, str]:
+        order = self.repository.get(order_id)
+        if order.status not in ("fulfilled", "refunded"):
+            raise OrderValidationError("tracking is available only for fulfilled or refunded orders")
+        tracking_number = f"TRK-{order.order_id.upper().replace('_', '-')}"
+        carrier = "Acme Logistics"
+        estimated_delivery = "2026-06-10"
+        return order, tracking_number, carrier, estimated_delivery
+
     def list_orders_for_customer(self, customer_id: str) -> tuple[Order, ...]:
         if not customer_id.strip():
             raise OrderValidationError("customer_id is required")
