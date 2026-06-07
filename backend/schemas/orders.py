@@ -32,6 +32,11 @@ class MarkOrderPaidRequest:
 
 
 @dataclass(frozen=True)
+class FulfillOrderRequest:
+    fulfillment_reference: str
+
+
+@dataclass(frozen=True)
 class ListOrdersResponse:
     customer_id: str
     orders: tuple[OrderResponse, ...]

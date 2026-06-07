@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from backend.repositories.order_repository import InMemoryOrderRepository
-from backend.schemas.orders import CancelOrderRequest, CreateOrderRequest, ListOrdersResponse, MarkOrderPaidRequest, OrderResponse
+from backend.schemas.orders import CancelOrderRequest, CreateOrderRequest, FulfillOrderRequest, ListOrdersResponse, MarkOrderPaidRequest, OrderResponse
 from backend.services.order_service import OrderService
 
 order_repository = InMemoryOrderRepository()
@@ -34,6 +34,12 @@ def list_orders_route(customer_id: str) -> ListOrdersResponse:
 def mark_order_paid_route(order_id: str, request: MarkOrderPaidRequest) -> OrderResponse:
     """POST /orders/{order_id}/pay - mark a checkout order as paid."""
     order = order_service.mark_order_paid(order_id, request.payment_reference)
+    return OrderResponse.from_order(order)
+
+
+def fulfill_order_route(order_id: str, request: FulfillOrderRequest) -> OrderResponse:
+    """POST /orders/{order_id}/fulfill - mark a paid order as fulfilled."""
+    order = order_service.fulfill_order(order_id, request.fulfillment_reference)
     return OrderResponse.from_order(order)
 
 
