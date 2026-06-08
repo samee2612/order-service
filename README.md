@@ -138,3 +138,5 @@ Response fields:
 `POST /orders/{order_id}/refund` flows through the route, service validation, and repository update layers.
 `GET /orders/{order_id}/tracking` flows through the route, service validation, and tracking response mapping layers.
 `GET /orders/{order_id}/invoice` flows through the route, service validation, and invoice response mapping layers.
+
+<!-- MergeFlow deployment verification: Sun Jun  7 17:52:22 PDT 2026 -->
