@@ -185,3 +185,22 @@ def test_add_tip_route_updates_total() -> None:
     assert response.tip_amount == "5.00"
     assert response.tip_note == "Great service!"
     assert response.updated_total_amount == "45.00"
+
+
+def test_cancel_order_route_cancels_pending_order() -> None:
+    order_res = create_order_route(
+        CreateOrderRequest(
+            customer_id="customer-cancel",
+            items=(CreateOrderItem(sku="sku-watch", quantity=1, unit_price=Decimal("150.00")),),
+            payment_method_id="pm_card",
+            shipping_address_id="addr_cancel",
+        )
+    )
+    response = cancel_order_route(
+        order_res.order_id,
+        CancelOrderRequest(cancellation_reason="Customer requested cancellation before shipment"),
+    )
+    assert response.order_id == order_res.order_id
+    assert response.customer_id == "customer-cancel"
+    assert response.status == "cancelled"
+    assert response.cancellation_reason == "Customer requested cancellation before shipment"

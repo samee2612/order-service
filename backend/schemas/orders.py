@@ -312,3 +312,29 @@ class TipResponse:
             tip_note=tip_note.strip(),
             updated_total_amount=f"{updated_total:.2f}",
         )
+
+
+@dataclass(frozen=True)
+class CancelOrderRequest:
+    cancellation_reason: str
+
+
+@dataclass(frozen=True)
+class CancelOrderResponse:
+    order_id: str
+    customer_id: str
+    status: str
+    cancellation_reason: str
+
+    @classmethod
+    def from_order(
+        cls,
+        order: Order,
+        cancellation_reason: str,
+    ) -> "CancelOrderResponse":
+        return cls(
+            order_id=order.order_id,
+            customer_id=order.customer_id,
+            status=order.status,
+            cancellation_reason=cancellation_reason.strip(),
+        )
