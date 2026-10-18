@@ -260,6 +260,25 @@ class OrderService:
 
         return order
 
+    def add_priority_fulfillment(
+        self,
+        order_id: str,
+        priority_level: str = "high",
+        rush_reason: str = "",
+    ) -> Order:
+        valid_priorities = ("standard", "high", "urgent")
+        if priority_level not in valid_priorities:
+            raise OrderValidationError("priority_level must be standard, high, or urgent")
+        if len(rush_reason) > 200:
+            raise OrderValidationError("rush_reason cannot exceed 200 characters")
+
+        order = self.repository.get(order_id)
+        if order.status not in ("created", "paid"):
+            raise OrderValidationError("priority fulfillment can only be applied to active created or paid orders")
+
+        return order
+
+
     def _validate_create_request(self, request: CreateOrderRequest) -> None:
         if not request.customer_id:
             raise OrderValidationError("customer_id is required")
