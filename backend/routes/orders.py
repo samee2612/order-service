@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from backend.repositories.order_repository import InMemoryOrderRepository
-from backend.schemas.orders import CancelOrderRequest, CreateOrderRequest, FulfillOrderRequest, ListOrdersResponse, MarkOrderPaidRequest, InvoiceResponse, OrderResponse, OrderStatusResponse, OrderTrackingResponse, RefundOrderRequest
+from backend.schemas.orders import CancelOrderRequest, CreateOrderRequest, FulfillOrderRequest, ListOrdersResponse, MarkOrderPaidRequest, InvoiceResponse, OrderResponse, OrderStatusResponse, OrderTrackingResponse, RefundOrderRequest, ExpediteOrderRequest, ExpediteOrderResponse
 from backend.services.order_service import OrderService
 
 order_repository = InMemoryOrderRepository()
@@ -69,3 +69,9 @@ def cancel_order_route(order_id: str, request: CancelOrderRequest) -> OrderRespo
     """POST /orders/{order_id}/cancel - cancel a checkout order before fulfillment."""
     order = order_service.cancel_order(order_id, request.cancellation_reason)
     return OrderResponse.from_order(order)
+
+
+def expedite_order_route(order_id: str, request: ExpediteOrderRequest) -> ExpediteOrderResponse:
+    """POST /orders/{order_id}/expedite - upgrade shipping speed for a paid order before fulfillment."""
+    order = order_service.expedite_order(order_id, request.shipping_speed, request.expedite_fee)
+    return ExpediteOrderResponse.from_order(order, request.shipping_speed, request.expedite_fee)
