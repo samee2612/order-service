@@ -175,6 +175,33 @@ class OrderService:
 
         return order, valid_styles[wrap_style]
 
+    def apply_discount(
+        self,
+        order_id: str,
+        coupon_code: str,
+        referral_code: str = "",
+    ) -> tuple[Order, int, Decimal, Decimal]:
+        code = coupon_code.upper().strip()
+        coupons = {
+            "SAVE10": 10,
+            "WELCOME15": 15,
+            "VIP20": 20,
+            "SUMMER25": 25,
+        }
+        if not code:
+            raise OrderValidationError("coupon_code is required")
+        if code not in coupons:
+            raise OrderValidationError(f"invalid coupon_code: {coupon_code}")
+
+        order = self.repository.get(order_id)
+        if order.status not in ("created", "paid"):
+            raise OrderValidationError("discount can only be applied while order is in created or paid status")
+
+        discount_percentage = coupons[code]
+        discount_amount = (order.total_amount * Decimal(discount_percentage) / Decimal(100)).quantize(Decimal("0.01"))
+        discounted_total = max(Decimal("0.00"), order.total_amount - discount_amount)
+        return order, discount_percentage, discount_amount, discounted_total
+
     def cancel_order(self, order_id: str, cancellation_reason: str) -> Order:
         if not cancellation_reason.strip():
             raise OrderValidationError("cancellation_reason is required")
