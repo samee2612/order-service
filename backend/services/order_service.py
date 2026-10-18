@@ -152,6 +152,29 @@ class OrderService:
 
         return order
 
+    def add_gift_wrap(
+        self,
+        order_id: str,
+        wrap_style: str = "standard",
+        gift_message: str = "",
+        recipient_name: str = "",
+    ) -> tuple[Order, Decimal]:
+        valid_styles = {
+            "standard": Decimal("3.99"),
+            "festive": Decimal("4.99"),
+            "premium": Decimal("6.99"),
+        }
+        if wrap_style not in valid_styles:
+            raise OrderValidationError("wrap_style must be standard, festive, or premium")
+        if len(gift_message) > 200:
+            raise OrderValidationError("gift_message cannot exceed 200 characters")
+
+        order = self.repository.get(order_id)
+        if order.status not in ("created", "paid"):
+            raise OrderValidationError("gift wrap can only be added while order is in created or paid status")
+
+        return order, valid_styles[wrap_style]
+
     def cancel_order(self, order_id: str, cancellation_reason: str) -> Order:
         if not cancellation_reason.strip():
             raise OrderValidationError("cancellation_reason is required")
