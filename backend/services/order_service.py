@@ -239,6 +239,27 @@ class OrderService:
         )
         return self.repository.save(cancelled_order)
 
+    def add_delivery_instructions(
+        self,
+        order_id: str,
+        delivery_notes: str,
+        dropoff_preference: str = "front_door",
+        gate_code: str = "",
+    ) -> Order:
+        valid_preferences = ("front_door", "porch", "back_door", "leasing_office")
+        if dropoff_preference not in valid_preferences:
+            raise OrderValidationError("dropoff_preference must be front_door, porch, back_door, or leasing_office")
+        if len(delivery_notes) > 250:
+            raise OrderValidationError("delivery_notes cannot exceed 250 characters")
+        if len(gate_code) > 20:
+            raise OrderValidationError("gate_code cannot exceed 20 characters")
+
+        order = self.repository.get(order_id)
+        if order.status not in ("created", "paid"):
+            raise OrderValidationError("delivery instructions can only be updated for active created or paid orders")
+
+        return order
+
     def _validate_create_request(self, request: CreateOrderRequest) -> None:
         if not request.customer_id:
             raise OrderValidationError("customer_id is required")

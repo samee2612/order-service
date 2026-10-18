@@ -1,7 +1,7 @@
 from decimal import Decimal
 
-from backend.routes.orders import add_gift_wrap_route, add_tip_route, apply_discount_route, cancel_order_route, create_order_route, fulfill_order_route, get_order_invoice_route, get_order_route, get_order_status_route, get_order_tracking_route, list_orders_route, mark_order_paid_route, refund_order_route
-from backend.schemas.orders import AddGiftWrapRequest, AddTipRequest, ApplyDiscountRequest, CancelOrderRequest, CreateOrderItem, CreateOrderRequest, FulfillOrderRequest, MarkOrderPaidRequest, RefundOrderRequest
+from backend.routes.orders import add_delivery_instructions_route, add_gift_wrap_route, add_tip_route, apply_discount_route, cancel_order_route, create_order_route, fulfill_order_route, get_order_invoice_route, get_order_route, get_order_status_route, get_order_tracking_route, list_orders_route, mark_order_paid_route, refund_order_route
+from backend.schemas.orders import AddDeliveryInstructionsRequest, AddGiftWrapRequest, AddTipRequest, ApplyDiscountRequest, CancelOrderRequest, CreateOrderItem, CreateOrderRequest, FulfillOrderRequest, MarkOrderPaidRequest, RefundOrderRequest
 
 
 def test_create_order_route_returns_checkout_response() -> None:
@@ -204,3 +204,27 @@ def test_cancel_order_route_cancels_pending_order() -> None:
     assert response.customer_id == "customer-cancel"
     assert response.status == "cancelled"
     assert response.cancellation_reason == "Customer requested cancellation before shipment"
+
+
+def test_add_delivery_instructions_route_updates_instructions() -> None:
+    order_res = create_order_route(
+        CreateOrderRequest(
+            customer_id="customer-gate",
+            items=(CreateOrderItem(sku="sku-shoes", quantity=1, unit_price=Decimal("89.99")),),
+            payment_method_id="pm_card",
+            shipping_address_id="addr_apt",
+        )
+    )
+    response = add_delivery_instructions_route(
+        order_res.order_id,
+        AddDeliveryInstructionsRequest(
+            delivery_notes="Please leave at side door behind gate",
+            dropoff_preference="porch",
+            gate_code="#4321",
+        ),
+    )
+    assert response.order_id == order_res.order_id
+    assert response.customer_id == "customer-gate"
+    assert response.delivery_notes == "Please leave at side door behind gate"
+    assert response.dropoff_preference == "porch"
+    assert response.gate_code == "#4321"
