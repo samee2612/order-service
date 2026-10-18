@@ -1,7 +1,7 @@
 from decimal import Decimal
 
-from backend.routes.orders import cancel_order_route, create_order_route, fulfill_order_route, get_order_invoice_route, get_order_route, get_order_status_route, get_order_tracking_route, list_orders_route, mark_order_paid_route, refund_order_route
-from backend.schemas.orders import CancelOrderRequest, CreateOrderItem, CreateOrderRequest, FulfillOrderRequest, MarkOrderPaidRequest, RefundOrderRequest
+from backend.routes.orders import add_gift_wrap_route, cancel_order_route, create_order_route, fulfill_order_route, get_order_invoice_route, get_order_route, get_order_status_route, get_order_tracking_route, list_orders_route, mark_order_paid_route, refund_order_route
+from backend.schemas.orders import AddGiftWrapRequest, CancelOrderRequest, CreateOrderItem, CreateOrderRequest, FulfillOrderRequest, MarkOrderPaidRequest, RefundOrderRequest
 
 
 def test_create_order_route_returns_checkout_response() -> None:
@@ -103,12 +103,43 @@ def test_get_order_tracking_route_returns_tracking_details() -> None:
     assert response.tracking_number.startswith("TRK-")
 
 def test_get_order_invoice_route_returns_invoice_details() -> None:
+    order_res = create_order_route(
+        CreateOrderRequest(
+            customer_id="customer-inv",
+            items=(CreateOrderItem(sku="sku-inv", quantity=3, unit_price=Decimal("10.00")),),
+            payment_method_id="pm_card",
+            shipping_address_id="addr_inv",
+        )
+    )
     mark_order_paid_route(
-        "order_customer_123_001",
+        order_res.order_id,
         MarkOrderPaidRequest(payment_reference="pay_invoice_123"),
     )
-    response = get_order_invoice_route("order_customer_123_001")
-    assert response.order_id == "order_customer_123_001"
+    response = get_order_invoice_route(order_res.order_id)
+    assert response.order_id == order_res.order_id
     assert response.status == "paid"
     assert response.invoice_id.startswith("INV-")
     assert response.line_item_count == 3
+
+
+def test_add_gift_wrap_route_returns_confirmed_gift_options() -> None:
+    order_res = create_order_route(
+        CreateOrderRequest(
+            customer_id="customer-gift",
+            items=(CreateOrderItem(sku="sku-gift", quantity=1, unit_price=Decimal("25.00")),),
+            payment_method_id="pm_card",
+            shipping_address_id="addr_gift",
+        )
+    )
+    response = add_gift_wrap_route(
+        order_res.order_id,
+        AddGiftWrapRequest(
+            wrap_style="premium",
+            gift_message="Happy Birthday! Enjoy the gift.",
+            recipient_name="Alice Smith",
+        ),
+    )
+    assert response.order_id == order_res.order_id
+    assert response.wrap_style == "premium"
+    assert response.gift_wrap_fee == "6.99"
+    assert response.recipient_name == "Alice Smith"

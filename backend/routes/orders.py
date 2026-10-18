@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from backend.repositories.order_repository import InMemoryOrderRepository
-from backend.schemas.orders import CancelOrderRequest, CreateOrderRequest, FulfillOrderRequest, ListOrdersResponse, MarkOrderPaidRequest, InvoiceResponse, OrderResponse, OrderStatusResponse, OrderTrackingResponse, RefundOrderRequest, ExpediteOrderRequest, ExpediteOrderResponse, UpdateShippingAddressRequest, UpdateShippingAddressResponse
+from backend.schemas.orders import CancelOrderRequest, CreateOrderRequest, FulfillOrderRequest, ListOrdersResponse, MarkOrderPaidRequest, InvoiceResponse, OrderResponse, OrderStatusResponse, OrderTrackingResponse, RefundOrderRequest, ExpediteOrderRequest, ExpediteOrderResponse, UpdateShippingAddressRequest, UpdateShippingAddressResponse, AddGiftWrapRequest, GiftWrapResponse
 from backend.services.order_service import OrderService
 
 order_repository = InMemoryOrderRepository()
@@ -91,4 +91,24 @@ def update_shipping_address_route(
         order,
         request.shipping_address_id,
         request.delivery_instructions,
+    )
+
+
+def add_gift_wrap_route(
+    order_id: str,
+    request: AddGiftWrapRequest,
+) -> GiftWrapResponse:
+    """POST /orders/{order_id}/gift-wrap - add custom gift wrapping and message before fulfillment."""
+    order, fee = order_service.add_gift_wrap(
+        order_id,
+        request.wrap_style,
+        request.gift_message,
+        request.recipient_name,
+    )
+    return GiftWrapResponse.from_order(
+        order,
+        request.wrap_style,
+        request.gift_message,
+        request.recipient_name,
+        fee,
     )

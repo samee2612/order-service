@@ -202,3 +202,40 @@ class UpdateShippingAddressResponse:
             delivery_instructions=delivery_instructions.strip(),
             address_verified=shipping_address_id.startswith("addr_"),
         )
+
+
+@dataclass(frozen=True)
+class AddGiftWrapRequest:
+    wrap_style: str = "standard"
+    gift_message: str = ""
+    recipient_name: str = ""
+
+
+@dataclass(frozen=True)
+class GiftWrapResponse:
+    order_id: str
+    customer_id: str
+    status: str
+    wrap_style: str
+    gift_message: str
+    recipient_name: str
+    gift_wrap_fee: str
+
+    @classmethod
+    def from_order(
+        cls,
+        order: Order,
+        wrap_style: str,
+        gift_message: str,
+        recipient_name: str,
+        fee: Decimal,
+    ) -> "GiftWrapResponse":
+        return cls(
+            order_id=order.order_id,
+            customer_id=order.customer_id,
+            status=order.status,
+            wrap_style=wrap_style,
+            gift_message=gift_message.strip(),
+            recipient_name=recipient_name.strip(),
+            gift_wrap_fee=f"{fee:.2f}",
+        )
