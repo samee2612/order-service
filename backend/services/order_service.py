@@ -133,6 +133,25 @@ class OrderService:
 
         return order
 
+    def update_shipping_address(
+        self,
+        order_id: str,
+        shipping_address_id: str,
+        delivery_instructions: str = "",
+    ) -> Order:
+        if not shipping_address_id.strip():
+            raise OrderValidationError("shipping_address_id is required")
+        if len(delivery_instructions) > 250:
+            raise OrderValidationError("delivery_instructions cannot exceed 250 characters")
+
+        order = self.repository.get(order_id)
+        if order.status not in ("created", "paid"):
+            raise OrderValidationError(
+                "shipping address can only be updated while order is in created or paid status"
+            )
+
+        return order
+
     def cancel_order(self, order_id: str, cancellation_reason: str) -> Order:
         if not cancellation_reason.strip():
             raise OrderValidationError("cancellation_reason is required")
