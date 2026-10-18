@@ -202,6 +202,24 @@ class OrderService:
         discounted_total = max(Decimal("0.00"), order.total_amount - discount_amount)
         return order, discount_percentage, discount_amount, discounted_total
 
+    def add_tip(
+        self,
+        order_id: str,
+        tip_amount: Decimal,
+        tip_note: str = "",
+    ) -> tuple[Order, Decimal]:
+        if tip_amount <= Decimal("0.00"):
+            raise OrderValidationError("tip_amount must be greater than zero")
+        if len(tip_note) > 150:
+            raise OrderValidationError("tip_note cannot exceed 150 characters")
+
+        order = self.repository.get(order_id)
+        if order.status not in ("created", "paid"):
+            raise OrderValidationError("tip can only be added while order is in created or paid status")
+
+        updated_total = order.total_amount + tip_amount
+        return order, updated_total
+
     def cancel_order(self, order_id: str, cancellation_reason: str) -> Order:
         if not cancellation_reason.strip():
             raise OrderValidationError("cancellation_reason is required")
