@@ -1,7 +1,7 @@
 from decimal import Decimal
 
-from backend.routes.orders import add_gift_wrap_route, cancel_order_route, create_order_route, fulfill_order_route, get_order_invoice_route, get_order_route, get_order_status_route, get_order_tracking_route, list_orders_route, mark_order_paid_route, refund_order_route
-from backend.schemas.orders import AddGiftWrapRequest, CancelOrderRequest, CreateOrderItem, CreateOrderRequest, FulfillOrderRequest, MarkOrderPaidRequest, RefundOrderRequest
+from backend.routes.orders import add_gift_wrap_route, apply_discount_route, cancel_order_route, create_order_route, fulfill_order_route, get_order_invoice_route, get_order_route, get_order_status_route, get_order_tracking_route, list_orders_route, mark_order_paid_route, refund_order_route
+from backend.schemas.orders import AddGiftWrapRequest, ApplyDiscountRequest, CancelOrderRequest, CreateOrderItem, CreateOrderRequest, FulfillOrderRequest, MarkOrderPaidRequest, RefundOrderRequest
 
 
 def test_create_order_route_returns_checkout_response() -> None:
@@ -143,3 +143,26 @@ def test_add_gift_wrap_route_returns_confirmed_gift_options() -> None:
     assert response.wrap_style == "premium"
     assert response.gift_wrap_fee == "6.99"
     assert response.recipient_name == "Alice Smith"
+
+
+def test_apply_discount_route_calculates_savings() -> None:
+    order_res = create_order_route(
+        CreateOrderRequest(
+            customer_id="customer-discount",
+            items=(CreateOrderItem(sku="sku-gadget", quantity=2, unit_price=Decimal("50.00")),),
+            payment_method_id="pm_card",
+            shipping_address_id="addr_disc",
+        )
+    )
+    # Total is 100.00. Apply SAVE10 (10% off) -> 10.00 off, discounted total 90.00
+    response = apply_discount_route(
+        order_res.order_id,
+        ApplyDiscountRequest(coupon_code="SAVE10"),
+    )
+    assert response.order_id == order_res.order_id
+    assert response.coupon_code == "SAVE10"
+    assert response.discount_percentage == 10
+    assert response.discount_amount == "10.00"
+    assert response.original_total == "100.00"
+    assert response.discounted_total == "90.00"
+    assert response.applied is True

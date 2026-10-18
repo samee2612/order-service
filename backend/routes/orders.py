@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from backend.repositories.order_repository import InMemoryOrderRepository
-from backend.schemas.orders import CancelOrderRequest, CreateOrderRequest, FulfillOrderRequest, ListOrdersResponse, MarkOrderPaidRequest, InvoiceResponse, OrderResponse, OrderStatusResponse, OrderTrackingResponse, RefundOrderRequest, ExpediteOrderRequest, ExpediteOrderResponse, UpdateShippingAddressRequest, UpdateShippingAddressResponse, AddGiftWrapRequest, GiftWrapResponse
+from backend.schemas.orders import CancelOrderRequest, CreateOrderRequest, FulfillOrderRequest, ListOrdersResponse, MarkOrderPaidRequest, InvoiceResponse, OrderResponse, OrderStatusResponse, OrderTrackingResponse, RefundOrderRequest, ExpediteOrderRequest, ExpediteOrderResponse, UpdateShippingAddressRequest, UpdateShippingAddressResponse, AddGiftWrapRequest, GiftWrapResponse, ApplyDiscountRequest, DiscountResponse
 from backend.services.order_service import OrderService
 
 order_repository = InMemoryOrderRepository()
@@ -111,4 +111,23 @@ def add_gift_wrap_route(
         request.gift_message,
         request.recipient_name,
         fee,
+    )
+
+
+def apply_discount_route(
+    order_id: str,
+    request: ApplyDiscountRequest,
+) -> DiscountResponse:
+    """POST /orders/{order_id}/discount - apply promotional coupon code to calculate order savings."""
+    order, discount_pct, discount_amount, discounted_total = order_service.apply_discount(
+        order_id,
+        request.coupon_code,
+        request.referral_code,
+    )
+    return DiscountResponse.from_order(
+        order,
+        request.coupon_code,
+        discount_pct,
+        discount_amount,
+        discounted_total,
     )

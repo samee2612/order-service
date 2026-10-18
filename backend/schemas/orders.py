@@ -239,3 +239,43 @@ class GiftWrapResponse:
             recipient_name=recipient_name.strip(),
             gift_wrap_fee=f"{fee:.2f}",
         )
+
+
+@dataclass(frozen=True)
+class ApplyDiscountRequest:
+    coupon_code: str
+    referral_code: str = ""
+
+
+@dataclass(frozen=True)
+class DiscountResponse:
+    order_id: str
+    customer_id: str
+    status: str
+    coupon_code: str
+    discount_percentage: int
+    discount_amount: str
+    original_total: str
+    discounted_total: str
+    applied: bool
+
+    @classmethod
+    def from_order(
+        cls,
+        order: Order,
+        coupon_code: str,
+        discount_percentage: int,
+        discount_amount: Decimal,
+        discounted_total: Decimal,
+    ) -> "DiscountResponse":
+        return cls(
+            order_id=order.order_id,
+            customer_id=order.customer_id,
+            status=order.status,
+            coupon_code=coupon_code.upper().strip(),
+            discount_percentage=discount_percentage,
+            discount_amount=f"{discount_amount:.2f}",
+            original_total=f"{order.total_amount:.2f}",
+            discounted_total=f"{discounted_total:.2f}",
+            applied=True,
+        )
