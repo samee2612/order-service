@@ -120,6 +120,19 @@ class OrderService:
         )
         return self.repository.save(refunded_order)
 
+    def expedite_order(self, order_id: str, shipping_speed: str, expedite_fee: Decimal) -> Order:
+        valid_speeds = ("two_day", "overnight")
+        if shipping_speed not in valid_speeds:
+            raise OrderValidationError("shipping_speed must be two_day or overnight")
+        if expedite_fee < Decimal("0.00"):
+            raise OrderValidationError("expedite_fee cannot be negative")
+
+        order = self.repository.get(order_id)
+        if order.status != "paid":
+            raise OrderValidationError("only paid orders can be expedited before fulfillment")
+
+        return order
+
     def cancel_order(self, order_id: str, cancellation_reason: str) -> Order:
         if not cancellation_reason.strip():
             raise OrderValidationError("cancellation_reason is required")

@@ -140,3 +140,33 @@ def _next_action_for_status(status: str) -> str:
         "cancelled": "view_order",
         "refunded": "view_order",
     }.get(status, "view_order")
+
+
+@dataclass(frozen=True)
+class ExpediteOrderRequest:
+    shipping_speed: str
+    expedite_fee: Decimal
+
+
+@dataclass(frozen=True)
+class ExpediteOrderResponse:
+    order_id: str
+    customer_id: str
+    status: str
+    shipping_speed: str
+    expedite_fee: str
+    updated_total_amount: str
+    priority_dispatch: bool
+
+    @classmethod
+    def from_order(cls, order: Order, shipping_speed: str, expedite_fee: Decimal) -> "ExpediteOrderResponse":
+        updated_total = order.total_amount + expedite_fee
+        return cls(
+            order_id=order.order_id,
+            customer_id=order.customer_id,
+            status=order.status,
+            shipping_speed=shipping_speed,
+            expedite_fee=f"{expedite_fee:.2f}",
+            updated_total_amount=f"{updated_total:.2f}",
+            priority_dispatch=shipping_speed == "overnight",
+        )
