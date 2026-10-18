@@ -338,3 +338,37 @@ class CancelOrderResponse:
             status=order.status,
             cancellation_reason=cancellation_reason.strip(),
         )
+
+
+@dataclass(frozen=True)
+class AddDeliveryInstructionsRequest:
+    delivery_notes: str
+    dropoff_preference: str = "front_door"
+    gate_code: str = ""
+
+
+@dataclass(frozen=True)
+class DeliveryInstructionsResponse:
+    order_id: str
+    customer_id: str
+    status: str
+    delivery_notes: str
+    dropoff_preference: str
+    gate_code: str
+
+    @classmethod
+    def from_order(
+        cls,
+        order: Order,
+        delivery_notes: str,
+        dropoff_preference: str,
+        gate_code: str,
+    ) -> "DeliveryInstructionsResponse":
+        return cls(
+            order_id=order.order_id,
+            customer_id=order.customer_id,
+            status=order.status,
+            delivery_notes=delivery_notes.strip(),
+            dropoff_preference=dropoff_preference.strip(),
+            gate_code=gate_code.strip(),
+        )
