@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from backend.repositories.order_repository import InMemoryOrderRepository
-from backend.schemas.orders import CancelOrderRequest, CreateOrderRequest, FulfillOrderRequest, ListOrdersResponse, MarkOrderPaidRequest, InvoiceResponse, OrderResponse, OrderStatusResponse, OrderTrackingResponse, RefundOrderRequest, ExpediteOrderRequest, ExpediteOrderResponse
+from backend.schemas.orders import CancelOrderRequest, CreateOrderRequest, FulfillOrderRequest, ListOrdersResponse, MarkOrderPaidRequest, InvoiceResponse, OrderResponse, OrderStatusResponse, OrderTrackingResponse, RefundOrderRequest, ExpediteOrderRequest, ExpediteOrderResponse, UpdateShippingAddressRequest, UpdateShippingAddressResponse
 from backend.services.order_service import OrderService
 
 order_repository = InMemoryOrderRepository()
@@ -75,3 +75,20 @@ def expedite_order_route(order_id: str, request: ExpediteOrderRequest) -> Expedi
     """POST /orders/{order_id}/expedite - upgrade shipping speed for a paid order before fulfillment."""
     order = order_service.expedite_order(order_id, request.shipping_speed, request.expedite_fee)
     return ExpediteOrderResponse.from_order(order, request.shipping_speed, request.expedite_fee)
+
+
+def update_shipping_address_route(
+    order_id: str,
+    request: UpdateShippingAddressRequest,
+) -> UpdateShippingAddressResponse:
+    """POST /orders/{order_id}/shipping-address - update delivery address for an unfulfilled order."""
+    order = order_service.update_shipping_address(
+        order_id,
+        request.shipping_address_id,
+        request.delivery_instructions,
+    )
+    return UpdateShippingAddressResponse.from_order(
+        order,
+        request.shipping_address_id,
+        request.delivery_instructions,
+    )

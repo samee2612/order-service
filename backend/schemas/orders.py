@@ -170,3 +170,35 @@ class ExpediteOrderResponse:
             updated_total_amount=f"{updated_total:.2f}",
             priority_dispatch=shipping_speed == "overnight",
         )
+
+
+@dataclass(frozen=True)
+class UpdateShippingAddressRequest:
+    shipping_address_id: str
+    delivery_instructions: str = ""
+
+
+@dataclass(frozen=True)
+class UpdateShippingAddressResponse:
+    order_id: str
+    customer_id: str
+    status: str
+    shipping_address_id: str
+    delivery_instructions: str
+    address_verified: bool
+
+    @classmethod
+    def from_order(
+        cls,
+        order: Order,
+        shipping_address_id: str,
+        delivery_instructions: str,
+    ) -> "UpdateShippingAddressResponse":
+        return cls(
+            order_id=order.order_id,
+            customer_id=order.customer_id,
+            status=order.status,
+            shipping_address_id=shipping_address_id,
+            delivery_instructions=delivery_instructions.strip(),
+            address_verified=shipping_address_id.startswith("addr_"),
+        )
