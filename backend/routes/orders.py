@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from backend.repositories.order_repository import InMemoryOrderRepository
-from backend.schemas.orders import CancelOrderRequest, CreateOrderRequest, FulfillOrderRequest, ListOrdersResponse, MarkOrderPaidRequest, InvoiceResponse, OrderResponse, OrderStatusResponse, OrderTrackingResponse, RefundOrderRequest, ExpediteOrderRequest, ExpediteOrderResponse, UpdateShippingAddressRequest, UpdateShippingAddressResponse, AddGiftWrapRequest, GiftWrapResponse, ApplyDiscountRequest, DiscountResponse
+from backend.schemas.orders import CancelOrderRequest, CreateOrderRequest, FulfillOrderRequest, ListOrdersResponse, MarkOrderPaidRequest, InvoiceResponse, OrderResponse, OrderStatusResponse, OrderTrackingResponse, RefundOrderRequest, ExpediteOrderRequest, ExpediteOrderResponse, UpdateShippingAddressRequest, UpdateShippingAddressResponse, AddGiftWrapRequest, GiftWrapResponse, ApplyDiscountRequest, DiscountResponse, AddTipRequest, TipResponse
 from backend.services.order_service import OrderService
 
 order_repository = InMemoryOrderRepository()
@@ -130,4 +130,22 @@ def apply_discount_route(
         discount_pct,
         discount_amount,
         discounted_total,
+    )
+
+
+def add_tip_route(
+    order_id: str,
+    request: AddTipRequest,
+) -> TipResponse:
+    """POST /orders/{order_id}/tip - add optional courier tip and note before order fulfillment."""
+    order, updated_total = order_service.add_tip(
+        order_id,
+        request.tip_amount,
+        request.tip_note,
+    )
+    return TipResponse.from_order(
+        order,
+        request.tip_amount,
+        request.tip_note,
+        updated_total,
     )

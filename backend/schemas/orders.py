@@ -279,3 +279,36 @@ class DiscountResponse:
             discounted_total=f"{discounted_total:.2f}",
             applied=True,
         )
+
+
+@dataclass(frozen=True)
+class AddTipRequest:
+    tip_amount: Decimal
+    tip_note: str = ""
+
+
+@dataclass(frozen=True)
+class TipResponse:
+    order_id: str
+    customer_id: str
+    status: str
+    tip_amount: str
+    tip_note: str
+    updated_total_amount: str
+
+    @classmethod
+    def from_order(
+        cls,
+        order: Order,
+        tip_amount: Decimal,
+        tip_note: str,
+        updated_total: Decimal,
+    ) -> "TipResponse":
+        return cls(
+            order_id=order.order_id,
+            customer_id=order.customer_id,
+            status=order.status,
+            tip_amount=f"{tip_amount:.2f}",
+            tip_note=tip_note.strip(),
+            updated_total_amount=f"{updated_total:.2f}",
+        )

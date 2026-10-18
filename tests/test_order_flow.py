@@ -1,7 +1,7 @@
 from decimal import Decimal
 
-from backend.routes.orders import add_gift_wrap_route, apply_discount_route, cancel_order_route, create_order_route, fulfill_order_route, get_order_invoice_route, get_order_route, get_order_status_route, get_order_tracking_route, list_orders_route, mark_order_paid_route, refund_order_route
-from backend.schemas.orders import AddGiftWrapRequest, ApplyDiscountRequest, CancelOrderRequest, CreateOrderItem, CreateOrderRequest, FulfillOrderRequest, MarkOrderPaidRequest, RefundOrderRequest
+from backend.routes.orders import add_gift_wrap_route, add_tip_route, apply_discount_route, cancel_order_route, create_order_route, fulfill_order_route, get_order_invoice_route, get_order_route, get_order_status_route, get_order_tracking_route, list_orders_route, mark_order_paid_route, refund_order_route
+from backend.schemas.orders import AddGiftWrapRequest, AddTipRequest, ApplyDiscountRequest, CancelOrderRequest, CreateOrderItem, CreateOrderRequest, FulfillOrderRequest, MarkOrderPaidRequest, RefundOrderRequest
 
 
 def test_create_order_route_returns_checkout_response() -> None:
@@ -166,3 +166,22 @@ def test_apply_discount_route_calculates_savings() -> None:
     assert response.original_total == "100.00"
     assert response.discounted_total == "90.00"
     assert response.applied is True
+
+
+def test_add_tip_route_updates_total() -> None:
+    order_res = create_order_route(
+        CreateOrderRequest(
+            customer_id="customer-tip",
+            items=(CreateOrderItem(sku="sku-lunch", quantity=1, unit_price=Decimal("40.00")),),
+            payment_method_id="pm_card",
+            shipping_address_id="addr_tip",
+        )
+    )
+    response = add_tip_route(
+        order_res.order_id,
+        AddTipRequest(tip_amount=Decimal("5.00"), tip_note="Great service!"),
+    )
+    assert response.order_id == order_res.order_id
+    assert response.tip_amount == "5.00"
+    assert response.tip_note == "Great service!"
+    assert response.updated_total_amount == "45.00"
