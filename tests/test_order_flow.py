@@ -1,7 +1,7 @@
 from decimal import Decimal
 
-from backend.routes.orders import add_delivery_instructions_route, add_gift_wrap_route, add_tip_route, apply_discount_route, cancel_order_route, create_order_route, fulfill_order_route, get_order_invoice_route, get_order_route, get_order_status_route, get_order_tracking_route, list_orders_route, mark_order_paid_route, refund_order_route
-from backend.schemas.orders import AddDeliveryInstructionsRequest, AddGiftWrapRequest, AddTipRequest, ApplyDiscountRequest, CancelOrderRequest, CreateOrderItem, CreateOrderRequest, FulfillOrderRequest, MarkOrderPaidRequest, RefundOrderRequest
+from backend.routes.orders import add_delivery_instructions_route, add_priority_fulfillment_route, add_gift_wrap_route, add_tip_route, apply_discount_route, cancel_order_route, create_order_route, fulfill_order_route, get_order_invoice_route, get_order_route, get_order_status_route, get_order_tracking_route, list_orders_route, mark_order_paid_route, refund_order_route
+from backend.schemas.orders import AddDeliveryInstructionsRequest, AddPriorityFulfillmentRequest, AddGiftWrapRequest, AddTipRequest, ApplyDiscountRequest, CancelOrderRequest, CreateOrderItem, CreateOrderRequest, FulfillOrderRequest, MarkOrderPaidRequest, RefundOrderRequest
 
 
 def test_create_order_route_returns_checkout_response() -> None:
@@ -228,3 +228,27 @@ def test_add_delivery_instructions_route_updates_instructions() -> None:
     assert response.delivery_notes == "Please leave at side door behind gate"
     assert response.dropoff_preference == "porch"
     assert response.gate_code == "#4321"
+
+
+def test_add_priority_fulfillment_route_updates_priority() -> None:
+    order_res = create_order_route(
+        CreateOrderRequest(
+            customer_id="customer-rush",
+            items=(CreateOrderItem(sku="sku-laptop", quantity=1, unit_price=Decimal("1299.00")),),
+            payment_method_id="pm_corp_card",
+            shipping_address_id="addr_office",
+        )
+    )
+    response = add_priority_fulfillment_route(
+        order_res.order_id,
+        AddPriorityFulfillmentRequest(
+            priority_level="urgent",
+            rush_reason="Executive traveling tomorrow morning",
+        ),
+    )
+    assert response.order_id == order_res.order_id
+    assert response.customer_id == "customer-rush"
+    assert response.status == "created"
+    assert response.priority_level == "urgent"
+    assert response.rush_reason == "Executive traveling tomorrow morning"
+

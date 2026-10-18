@@ -372,3 +372,33 @@ class DeliveryInstructionsResponse:
             dropoff_preference=dropoff_preference.strip(),
             gate_code=gate_code.strip(),
         )
+
+
+@dataclass(frozen=True)
+class AddPriorityFulfillmentRequest:
+    priority_level: str = "high"
+    rush_reason: str = ""
+
+
+@dataclass(frozen=True)
+class PriorityFulfillmentResponse:
+    order_id: str
+    customer_id: str
+    status: str
+    priority_level: str
+    rush_reason: str
+
+    @classmethod
+    def from_order(
+        cls,
+        order: Order,
+        priority_level: str,
+        rush_reason: str,
+    ) -> "PriorityFulfillmentResponse":
+        return cls(
+            order_id=order.order_id,
+            customer_id=order.customer_id,
+            status=order.status,
+            priority_level=priority_level.strip(),
+            rush_reason=rush_reason.strip(),
+        )
