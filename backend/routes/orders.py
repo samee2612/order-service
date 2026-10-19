@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from backend.repositories.order_repository import InMemoryOrderRepository
-from backend.schemas.orders import AddDeliveryInstructionsRequest, DeliveryInstructionsResponse, AddPriorityFulfillmentRequest, PriorityFulfillmentResponse, CancelOrderRequest, CancelOrderResponse, CreateOrderRequest, FulfillOrderRequest, ListOrdersResponse, MarkOrderPaidRequest, InvoiceResponse, OrderResponse, OrderStatusResponse, OrderTrackingResponse, RefundOrderRequest, ExpediteOrderRequest, ExpediteOrderResponse, UpdateShippingAddressRequest, UpdateShippingAddressResponse, AddGiftWrapRequest, GiftWrapResponse, ApplyDiscountRequest, DiscountResponse, AddTipRequest, TipResponse
+from backend.schemas.orders import AddDeliveryInstructionsRequest, DeliveryInstructionsResponse, AddLoyaltyPointsRequest, LoyaltyPointsResponse, AddPriorityFulfillmentRequest, PriorityFulfillmentResponse, CancelOrderRequest, CancelOrderResponse, CreateOrderRequest, FulfillOrderRequest, ListOrdersResponse, MarkOrderPaidRequest, InvoiceResponse, OrderResponse, OrderStatusResponse, OrderTrackingResponse, RefundOrderRequest, ExpediteOrderRequest, ExpediteOrderResponse, UpdateShippingAddressRequest, UpdateShippingAddressResponse, AddGiftWrapRequest, GiftWrapResponse, ApplyDiscountRequest, DiscountResponse, AddTipRequest, TipResponse
 from backend.services.order_service import OrderService
 
 order_repository = InMemoryOrderRepository()
@@ -199,5 +199,24 @@ def add_priority_fulfillment_route(
         order,
         request.priority_level,
         request.rush_reason,
+    )
+
+
+def add_loyalty_points_route(
+    order_id: str,
+    request: AddLoyaltyPointsRequest,
+) -> LoyaltyPointsResponse:
+    """POST /orders/{order_id}/loyalty-points - redeem loyalty points for order discount."""
+    order, points_redeemed, discount_amount, discounted_total, remaining_balance = order_service.add_loyalty_points(
+        order_id,
+        request.points_to_redeem,
+        request.loyalty_program_id,
+    )
+    return LoyaltyPointsResponse.from_order(
+        order,
+        points_redeemed,
+        discount_amount,
+        discounted_total,
+        remaining_balance,
     )
 

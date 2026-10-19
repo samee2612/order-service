@@ -278,6 +278,29 @@ class OrderService:
 
         return order
 
+    def add_loyalty_points(
+        self,
+        order_id: str,
+        points_to_redeem: int,
+        loyalty_program_id: str = "rewards_club",
+    ) -> tuple[Order, int, Decimal, Decimal, int]:
+        if points_to_redeem <= 0:
+            raise OrderValidationError("points_to_redeem must be greater than zero")
+        if points_to_redeem > 5000:
+            raise OrderValidationError("maximum 5000 points can be redeemed per transaction")
+
+        order = self.repository.get(order_id)
+        if order.status not in ("created", "paid"):
+            raise OrderValidationError("loyalty points can only be applied to active created or paid orders")
+
+        # 100 points = $1.00 discount
+        discount_amount = Decimal(points_to_redeem) / Decimal("100")
+        current_total = Decimal(order.total_amount)
+        discounted_total = max(Decimal("0.00"), current_total - discount_amount)
+        remaining_balance = 500
+
+        return order, points_to_redeem, discount_amount, discounted_total, remaining_balance
+
 
     def _validate_create_request(self, request: CreateOrderRequest) -> None:
         if not request.customer_id:

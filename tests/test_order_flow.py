@@ -1,7 +1,7 @@
 from decimal import Decimal
 
-from backend.routes.orders import add_delivery_instructions_route, add_priority_fulfillment_route, add_gift_wrap_route, add_tip_route, apply_discount_route, cancel_order_route, create_order_route, fulfill_order_route, get_order_invoice_route, get_order_route, get_order_status_route, get_order_tracking_route, list_orders_route, mark_order_paid_route, refund_order_route
-from backend.schemas.orders import AddDeliveryInstructionsRequest, AddPriorityFulfillmentRequest, AddGiftWrapRequest, AddTipRequest, ApplyDiscountRequest, CancelOrderRequest, CreateOrderItem, CreateOrderRequest, FulfillOrderRequest, MarkOrderPaidRequest, RefundOrderRequest
+from backend.routes.orders import add_delivery_instructions_route, add_loyalty_points_route, add_priority_fulfillment_route, add_gift_wrap_route, add_tip_route, apply_discount_route, cancel_order_route, create_order_route, fulfill_order_route, get_order_invoice_route, get_order_route, get_order_status_route, get_order_tracking_route, list_orders_route, mark_order_paid_route, refund_order_route
+from backend.schemas.orders import AddDeliveryInstructionsRequest, AddLoyaltyPointsRequest, AddPriorityFulfillmentRequest, AddGiftWrapRequest, AddTipRequest, ApplyDiscountRequest, CancelOrderRequest, CreateOrderItem, CreateOrderRequest, FulfillOrderRequest, MarkOrderPaidRequest, RefundOrderRequest
 
 
 def test_create_order_route_returns_checkout_response() -> None:
@@ -251,4 +251,30 @@ def test_add_priority_fulfillment_route_updates_priority() -> None:
     assert response.status == "created"
     assert response.priority_level == "urgent"
     assert response.rush_reason == "Executive traveling tomorrow morning"
+
+
+def test_add_loyalty_points_route_updates_total() -> None:
+    order_res = create_order_route(
+        CreateOrderRequest(
+            customer_id="customer-points",
+            items=(CreateOrderItem(sku="sku-camera", quantity=1, unit_price=Decimal("150.00")),),
+            payment_method_id="pm_rewards_card",
+            shipping_address_id="addr_suburb",
+        )
+    )
+    # Redeem 500 points = $5.00 discount -> total becomes 145.00
+    response = add_loyalty_points_route(
+        order_res.order_id,
+        AddLoyaltyPointsRequest(
+            points_to_redeem=500,
+            loyalty_program_id="vip_club",
+        ),
+    )
+    assert response.order_id == order_res.order_id
+    assert response.customer_id == "customer-points"
+    assert response.status == "created"
+    assert response.points_redeemed == 500
+    assert response.discount_amount == "5.00"
+    assert response.discounted_total_amount == "145.00"
+    assert response.points_balance_remaining == 500
 
