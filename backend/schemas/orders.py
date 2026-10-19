@@ -402,3 +402,39 @@ class PriorityFulfillmentResponse:
             priority_level=priority_level.strip(),
             rush_reason=rush_reason.strip(),
         )
+
+
+@dataclass(frozen=True)
+class AddLoyaltyPointsRequest:
+    points_to_redeem: int
+    loyalty_program_id: str = "rewards_club"
+
+
+@dataclass(frozen=True)
+class LoyaltyPointsResponse:
+    order_id: str
+    customer_id: str
+    status: str
+    points_redeemed: int
+    discount_amount: str
+    discounted_total_amount: str
+    points_balance_remaining: int
+
+    @classmethod
+    def from_order(
+        cls,
+        order: Order,
+        points_redeemed: int,
+        discount_amount: Decimal,
+        discounted_total: Decimal,
+        remaining_balance: int = 500,
+    ) -> "LoyaltyPointsResponse":
+        return cls(
+            order_id=order.order_id,
+            customer_id=order.customer_id,
+            status=order.status,
+            points_redeemed=points_redeemed,
+            discount_amount=f"{discount_amount:.2f}",
+            discounted_total_amount=f"{discounted_total:.2f}",
+            points_balance_remaining=remaining_balance,
+        )
