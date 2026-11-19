@@ -301,6 +301,24 @@ class OrderService:
 
         return order, points_to_redeem, discount_amount, discounted_total, remaining_balance
 
+    def add_packaging(
+        self,
+        order_id: str,
+        packaging_type: str = "eco_friendly",
+        include_receipt: bool = False,
+    ) -> tuple[Order, str, bool, Decimal]:
+        valid_types = ("standard", "eco_friendly", "minimalist")
+        if packaging_type not in valid_types:
+            raise OrderValidationError("packaging_type must be standard, eco_friendly, or minimalist")
+
+        order = self.repository.get(order_id)
+        if order.status not in ("created", "paid"):
+            raise OrderValidationError("packaging can only be selected for active unfulfilled orders")
+
+        fee = Decimal("0.00") if packaging_type == "standard" else Decimal("1.50")
+        return order, packaging_type, include_receipt, fee
+
+
 
     def _validate_create_request(self, request: CreateOrderRequest) -> None:
         if not request.customer_id:

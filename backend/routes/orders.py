@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from backend.repositories.order_repository import InMemoryOrderRepository
-from backend.schemas.orders import AddDeliveryInstructionsRequest, DeliveryInstructionsResponse, AddLoyaltyPointsRequest, LoyaltyPointsResponse, AddPriorityFulfillmentRequest, PriorityFulfillmentResponse, CancelOrderRequest, CancelOrderResponse, CreateOrderRequest, FulfillOrderRequest, ListOrdersResponse, MarkOrderPaidRequest, InvoiceResponse, OrderResponse, OrderStatusResponse, OrderTrackingResponse, RefundOrderRequest, ExpediteOrderRequest, ExpediteOrderResponse, UpdateShippingAddressRequest, UpdateShippingAddressResponse, AddGiftWrapRequest, GiftWrapResponse, ApplyDiscountRequest, DiscountResponse, AddTipRequest, TipResponse
+from backend.schemas.orders import AddDeliveryInstructionsRequest, DeliveryInstructionsResponse, AddLoyaltyPointsRequest, LoyaltyPointsResponse, AddPackagingRequest, PackagingResponse, AddPriorityFulfillmentRequest, PriorityFulfillmentResponse, CancelOrderRequest, CancelOrderResponse, CreateOrderRequest, FulfillOrderRequest, ListOrdersResponse, MarkOrderPaidRequest, InvoiceResponse, OrderResponse, OrderStatusResponse, OrderTrackingResponse, RefundOrderRequest, ExpediteOrderRequest, ExpediteOrderResponse, UpdateShippingAddressRequest, UpdateShippingAddressResponse, AddGiftWrapRequest, GiftWrapResponse, ApplyDiscountRequest, DiscountResponse, AddTipRequest, TipResponse
 from backend.services.order_service import OrderService
 
 order_repository = InMemoryOrderRepository()
@@ -219,4 +219,23 @@ def add_loyalty_points_route(
         discounted_total,
         remaining_balance,
     )
+
+
+def add_packaging_route(
+    order_id: str,
+    request: AddPackagingRequest,
+) -> PackagingResponse:
+    """POST /orders/{order_id}/packaging - configure packaging options (standard, eco_friendly, minimalist)."""
+    order, packaging_type, include_receipt, fee = order_service.add_packaging(
+        order_id,
+        request.packaging_type,
+        request.include_receipt,
+    )
+    return PackagingResponse.from_order(
+        order,
+        packaging_type,
+        include_receipt,
+        fee,
+    )
+
 
