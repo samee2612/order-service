@@ -438,3 +438,37 @@ class LoyaltyPointsResponse:
             discounted_total_amount=f"{discounted_total:.2f}",
             points_balance_remaining=remaining_balance,
         )
+
+
+@dataclass(frozen=True)
+class AddPackagingRequest:
+    packaging_type: str = "eco_friendly"
+    include_receipt: bool = False
+
+
+@dataclass(frozen=True)
+class PackagingResponse:
+    order_id: str
+    customer_id: str
+    status: str
+    packaging_type: str
+    include_receipt: bool
+    packaging_fee: str
+
+    @classmethod
+    def from_order(
+        cls,
+        order: Order,
+        packaging_type: str,
+        include_receipt: bool,
+        fee: Decimal,
+    ) -> "PackagingResponse":
+        return cls(
+            order_id=order.order_id,
+            customer_id=order.customer_id,
+            status=order.status,
+            packaging_type=packaging_type.strip(),
+            include_receipt=include_receipt,
+            packaging_fee=f"{fee:.2f}",
+        )
+
